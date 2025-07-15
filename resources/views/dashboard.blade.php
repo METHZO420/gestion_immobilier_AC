@@ -83,6 +83,8 @@
                     <li class="nav-item">
                         <a class="nav-link" href="#contact">Contact</a>
                     </li>
+                      <a class="nav-link" href="{{ route('annonces.index') }}"> listes des annonces</a>
+                    
                 </ul>
                 <div>
                     <a> </a>
