@@ -29,7 +29,7 @@
 
             <!-- Page Content -->
             <main>
-                {{ $slot }}
+                @yield('content') {{-- ✅ Ceci évite l'erreur $slot --}}
             </main>
         </div>
     </body>
