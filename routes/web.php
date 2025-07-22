@@ -1,16 +1,13 @@
 <?php
 
 use App\Http\Controllers\AnnonceController;
+use App\Http\Controllers\ImageController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return view('dashboard');
-});
+Route::get('/', [\App\Http\Controllers\DashboardController::class, 'index'])->name('dashboard');
 
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -19,6 +16,15 @@ Route::middleware('auth')->group(function () {
     Route::resource('/annonces',AnnonceController::class);
 
 });
+Route::get('detailsAnnonce', function () {
+    return view('details_Annonce');
+});
+// Changer le statut d'une annonce (valider ou rejeter)
+Route::patch('/annonces/{annonce}/status', [AnnonceController::class, 'updateStatus'])->name('annonces.updateStatus');
+    Route::get('{annonce}/images', [ImageController::class, 'create'])->name('annonces.images.create');
+    Route::post('{annonce}/images', [ImageController::class, 'store'])->name('annonces.images.store');
+    Route::delete('images/{image}', [ImageController::class, 'destroy'])->name('annonces.images.destroy');
+
 
 require __DIR__.'/auth.php';
 
