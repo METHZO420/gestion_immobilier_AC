@@ -275,3 +275,71 @@
         @endif
     </body>
 </html>
+@if(auth()->user()==null)
+    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm fixed-top">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center fw-bold fs-4" href="#">
+                <div class="bg-gradient-primary text-white rounded p-2 me-2">
+                    <i class="fas fa-home"></i>
+                </div>
+                ImmoConnect
+            </a>
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="nav-buttons">
+                <a href="/login" class="btn btn-outline">Connexion</a>
+                <a href="/register" class="btn btn-primary">Inscription</a>
+            </div>
+        </div>
+    </nav>
+@endif
+@if(auth()->user()!=null)
+    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm fixed-top">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center fw-bold fs-4" href="#">
+                <div class="bg-gradient-primary text-white rounded p-2 me-2">
+                    <i class="fas fa-home"></i>
+                </div>
+                ImmoConnect
+            </a>
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{route('dashboard')}}">Accueil</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#acheter">Acheter</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#louer">Louer</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#vendre">Vendre</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#services">Services</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#contact">Contact</a>
+                    </li>
+                    <a class="nav-link" href="{{ route('annonces.index') }}"> listes des annonces</a>
+
+                </ul>
+                <div>
+                    <a> </a>
+                </div>
+                <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-inline">
+                    @csrf
+                    <button type="submit" class="btn btn-outline-danger">Se Déconnecter</button>
+                </form>
+            </div>
+        </div>
+    </nav>
+@endif

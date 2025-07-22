@@ -1,41 +1,132 @@
-@php $annonce = $annonce ?? null; @endphp
 
-<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-    <div>
-        <label class="block mb-2 font-medium">Titre</label>
-        <input type="text" name="titre" value="{{ old('titre', $annonce?->titre) }}" required class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-400">
-    </div>
-    <div>
-        <label class="block mb-2 font-medium">Type de bien</label>
-        <select name="type_bien" required class="w-full px-4 py-2 border rounded-lg">
-            <option value="">Choisir</option>
-            <option value="vente" {{ old('type_bien', $annonce?->type_bien) === 'vente' ? 'selected' : '' }}>Vente</option>
-            <option value="location" {{ old('type_bien', $annonce?->type_bien) === 'location' ? 'selected' : '' }}>Location</option>
-        </select>
-    </div>
-    <div>
-        <label class="block mb-2 font-medium">Prix</label>
-        <input type="number" name="prix" value="{{ old('prix', $annonce?->prix) }}" required class="w-full px-4 py-2 border rounded-lg">
-    </div>
-    <div>
-        <label class="block mb-2 font-medium">Adresse</label>
-        <input type="text" name="adresse" value="{{ old('adresse', $annonce?->adresse) }}" required class="w-full px-4 py-2 border rounded-lg">
-    </div>
-    <div>
-        <label class="block mb-2 font-medium">Nombre de pièces</label>
-        <input type="number" name="nombre_pieces" value="{{ old('nombre_pieces', $annonce?->nombre_pieces) }}" required class="w-full px-4 py-2 border rounded-lg">
-    </div>
-    <div>
-        <label class="block mb-2 font-medium">Surface (m²)</label>
-        <input type="number" name="surface" value="{{ old('surface', $annonce?->surface) }}" required class="w-full px-4 py-2 border rounded-lg">
-    </div>
-    <div class="md:col-span-2">
-        <label class="block mb-2 font-medium">Description</label>
-        <textarea name="description" rows="4" required class="w-full px-4 py-2 border rounded-lg">{{ old('description', $annonce?->description) }}</textarea>
-    </div>
-    <div class="md:col-span-2">
-        <label class="block mb-2 font-medium">Date d'ajout</label>
-        <input type="date" name="date_ajout" value="{{ old('date_ajout', $annonce?->date_ajout) }}" required class="w-full px-4 py-2 border rounded-lg">
-    </div>
-</div>
+@section('content')
 
+    <!-- Navbar -->
+    @if(auth()->user()==null)
+        <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm fixed-top">
+            <div class="container">
+                <a class="navbar-brand d-flex align-items-center fw-bold fs-4" href="#">
+                    <div class="bg-gradient-primary text-white rounded p-2 me-2">
+                        <i class="fas fa-home"></i>
+                    </div>
+                    ImmoConnect
+                </a>
+
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="nav-buttons">
+                    <a href="/login" class="btn btn-outline">Connexion</a>
+                    <a href="/register" class="btn btn-primary">Inscription</a>
+                </div>
+            </div>
+        </nav>
+    @endif
+    @if(auth()->user()!=null)
+        <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm fixed-top">
+            <div class="container">
+                <a class="navbar-brand d-flex align-items-center fw-bold fs-4" href="{{route('dashboard')}}">
+                    <div class="bg-gradient-primary text-white rounded p-2 me-2">
+                        <i class="fas fa-home"></i>
+                    </div>
+                    ImmoConnect
+                </a>
+
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav me-auto">
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{route('dashboard')}}">Accueil</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#favoris">Mes Favoris</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('annonces.index') }}"> Mes annonces</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#services">Services</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#contact">Contact</a>
+                        </li>
+
+                    </ul>
+                    <div>
+                        <a> </a>
+                    </div>
+                    <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-inline">
+                        @csrf
+                        <button type="submit" class="btn btn-outline-danger">Se Déconnecter</button>
+                    </form>
+                </div>
+            </div>
+        </nav>
+    @endif
+
+    <!-- CONTENU PRINCIPAL -->
+    <div class="container py-5" style="margin-top: 100px;">
+        <h2 class="fw-bold text-primary mb-4">Créer / Modifier une annonce</h2>
+
+        <form method="POST" action="{{ isset($annonce) ? route('annonces.update', $annonce) : route('annonces.store') }}">
+            @csrf
+            @if(isset($annonce)) @method('PUT') @endif
+
+            @php $annonce = $annonce ?? null; @endphp
+
+            <div class="bg-white p-4 p-md-5 rounded-4 shadow-sm">
+                <div class="row g-4">
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold text-dark">Titre</label>
+                        <input type="text" name="titre" value="{{ old('titre', $annonce?->titre) }}" required class="form-control rounded-3">
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold text-dark">Type Transaction</label>
+                        <select name="type_bien" required class="form-select rounded-3">
+                            <option value="">Choisir</option>
+                            <option value="vente" {{ old('type_bien', $annonce?->type_bien) === 'vente' ? 'selected' : '' }}>Vente</option>
+                            <option value="location" {{ old('type_bien', $annonce?->type_bien) === 'location' ? 'selected' : '' }}>Location</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold text-dark">Prix</label>
+                        <input type="number" name="prix" value="{{ old('prix', $annonce?->prix) }}" required class="form-control rounded-3">
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold text-dark">Adresse</label>
+                        <input type="text" name="adresse" value="{{ old('adresse', $annonce?->adresse) }}" required class="form-control rounded-3">
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold text-dark">Nombre de pièces</label>
+                        <input type="number" name="nombre_pieces" value="{{ old('nombre_pieces', $annonce?->nombre_pieces) }}" required class="form-control rounded-3">
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold text-dark">Surface (m²)</label>
+                        <input type="number" name="surface" value="{{ old('surface', $annonce?->surface) }}" required class="form-control rounded-3">
+                    </div>
+
+                    <div class="col-12">
+                        <label class="form-label fw-semibold text-dark">Description</label>
+                        <textarea name="description" rows="4" required class="form-control rounded-3">{{ old('description', $annonce?->description) }}</textarea>
+                    </div>
+
+
+                    <div class="col-12 text-end mt-3">
+                        <button type="submit" class="btn btn-primary px-4">
+                            <i class="fas fa-save me-2"></i>{{ isset($annonce) ? 'Mettre à jour' : 'Enregistrer' }}
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+
+@endsection

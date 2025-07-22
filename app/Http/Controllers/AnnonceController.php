@@ -14,7 +14,12 @@ class AnnonceController extends Controller
      */
     public function index()
     {
-        $annonces = Annonce::where('id_utilisateur', Auth::id())->get();
+        if (auth()->user()->role === 'admin') {
+            $annonces = Annonce::latest()->get();
+        } else {
+            $annonces = Annonce::where('id_utilisateur', auth()->id())->latest()->get();
+        }
+
         return view('annonces.index', compact('annonces'));
     }
 
@@ -39,7 +44,8 @@ class AnnonceController extends Controller
             'adresse' => 'required|string',
             'nombre_pieces' => 'required|integer|min:1',
             'surface' => 'required|integer|min:1',
-            'date_ajout' => 'required|date',
+
+
         ]);
         Annonce::create([
             'id_utilisateur' => Auth::id(),
@@ -50,11 +56,12 @@ class AnnonceController extends Controller
             'adresse' => $request->adresse,
             'nombre_pieces' => $request->nombre_pieces,
             'surface' => $request->surface,
-            'date_ajout' => $request->date_ajout,
+            'date_ajout' => date('d-m-Y'),
+            'status'=>'en attente'
         ]);
 
         return redirect()->route('annonces.index')->with('success', 'Annonce créée avec succès.');
-    
+
     }
 
     /**
@@ -62,12 +69,10 @@ class AnnonceController extends Controller
      */
     public function show(Annonce $annonce)
     {
-         if ($annonce->id_utilisateur !== Auth::id()) {
-            abort(403);
-        }
 
+        $annonce->load('images');
         return view('annonces.show', compact('annonce'));
-    
+
     }
 
     /**
@@ -75,12 +80,16 @@ class AnnonceController extends Controller
      */
     public function edit(User $user, Annonce $annonce)
     {
-         if ($annonce->id_utilisateur !== Auth::id()) {
-            abort(403);
+
+
+        // Vérification d'autorisation : l'utilisateur doit être le propriétaire ou un admin
+        if (auth()->user()->id !== $annonce->id_utilisateur && auth()->user()->role !== 'admin') {
+            abort(403, 'Accès non autorisé');
         }
 
         return view('annonces.edit', compact('annonce'));
-    
+
+
     }
 
     /**
@@ -88,8 +97,8 @@ class AnnonceController extends Controller
      */
     public function update(Request $request, Annonce $annonce)
     {
-        if ($annonce->id_utilisateur !== Auth::id()) {
-            abort(403);
+        if (auth()->user()->id !== $annonce->id_utilisateur && auth()->user()->role !== 'admin') {
+            abort(403, 'Accès non autorisé');
         }
 
         $request->validate([
@@ -100,13 +109,13 @@ class AnnonceController extends Controller
             'adresse' => 'required|string',
             'nombre_pieces' => 'required|integer|min:1',
             'surface' => 'required|integer|min:1',
-            'date_ajout' => 'required|date',
+
         ]);
 
         $annonce->update($request->all());
 
         return redirect()->route('annonces.index')->with('success', 'Annonce mise à jour.');
-   
+
     }
 
     /**
@@ -114,13 +123,25 @@ class AnnonceController extends Controller
      */
     public function destroy(Annonce $annonce)
     {
-        if ($annonce->id_utilisateur !== Auth::id()) {
-            abort(403);
+        if (auth()->user()->id !== $annonce->id_utilisateur && auth()->user()->role !== 'admin') {
+            abort(403, 'Accès non autorisé');
         }
 
         $annonce->delete();
 
         return redirect()->route('annonces.index')->with('success', 'Annonce supprimée.');
+    }
+    public function updateStatus(Request $request, Annonce $annonce)
+    {
+
+        $validated = $request->validate([
+            'status' => 'required|in:valide,rejete,en attente'
+        ]);
+
+        $annonce->status = $validated['status'];
+        $annonce->save();
+
+        return redirect()->back()->with('success', 'Statut mis à jour avec succès.');
     }
 }
 
